@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producer
+  labels:
+    app: producer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: producer
+  template:
+    metadata:
+      labels:
+        app: producer
+    spec:
+      containers:
+        - name: producer
+          image: localhost/producer:latest  # replace with your built image
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+          env:
+            # Kafka broker URL — update to your headless service name
+            - name: KAFKA_BROKER
+              value: "kafka-0.kafka.default.svc.cluster.local:9092"
+
+---
+# internal service to target the producer
+apiVersion: v1
+kind: Service
+metadata:
+  name: producer-service
+  labels:
+    app: producer-service
+spec:
+  selector:
+    app: producer
+  ports:
+    - protocol: TCP
+      port: 5000         # Port exposed by the service
+      targetPort: 5000   # Port on which the producer is listening
+  type: ClusterIP  
+---
+
+# ingress to expose the producer service
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: producer-ingress
+spec:
+  # this tells kubernetes
+  # which ingress controller to use for this ingress resource
+  # (useful in particular if you have multiple ingress controllers and need to
+  # associate a specific ingress resource with a specific ingress controller)
+  ingressClassName: nginx
+  rules:
+    - host: producer.local
+      http:
+        paths:
+          - path: /login
+            pathType: Prefix
+            backend:
+              service:
+                name: producer-service
+                port:
+                  number: 5000  # Change to your service's target port  

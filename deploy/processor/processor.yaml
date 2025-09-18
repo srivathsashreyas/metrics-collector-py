@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+# use a stateful set instead of a deployment here 
+# since it's easier to specify volume claims for stateful sets
+# the processor needs to persist checkpoint data to disk
+# so that if the pod restarts, it can resume processing from the last checkpoint
+kind: StatefulSet
+metadata:
+  name: processor
+  labels:
+    app: processor
+spec:
+  serviceName: "dummy" # no associated service. This is just to satisfy the requirement of StatefulSet manifest
+  replicas: 1
+  selector:
+    matchLabels:
+      app: processor
+  template:
+    metadata:
+      labels:
+        app: processor
+    spec:
+      containers:
+        - name: processor
+          image: localhost/processor:latest  
+          #ports:
+          #  - containerPort: 5001              
+          env:
+            - name: KAFKA_BROKER
+              value: "kafka.default.svc.cluster.local:9092"
+            - name: REDIS_HOST
+              value: "redis"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: SPARK_MASTER
+              value: "spark://spark-master-svc:7077"
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: raw-data
+              mountPath: /checkpoint/raw-data
+            - name: metrics
+              mountPath: /checkpoint/metrics
+              # metadata regarding the 
+              # spark job (processor.py) is written to this directory 
+              # without this volume mount, the spark job would fail to write the metadata
+              # due to insufficient permissions on the directory
+            - name: artifacts
+              mountPath: /app/artifacts
+  volumeClaimTemplates:
+    - metadata:
+        name: raw-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
+    - metadata:
+        name: metrics
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
+    - metadata:
+        name: artifacts
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 2Gi

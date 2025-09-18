@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Producer",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "producer.producer",   //use module instead of program to deal with dependencies involving other user defined modules
+            "console": "integratedTerminal",
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "name": "Processor",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "processor.processor", //use module instead of program to deal with dependencies involving other user defined modules
+            "console": "integratedTerminal",
+            "cwd": "${workspaceRoot}"
+        }
+    ]
+}

@@ -1,0 +1,10 @@
+artifacts/
+.venv/
+dump.rdb
+*.tar
+client/__pycache__/
+db/__pycache__/
+grpc_config/out/__pycache__
+processor/__pycache__/
+producer/__pycache__/
+server/__pycache__/

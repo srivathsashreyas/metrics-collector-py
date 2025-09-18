@@ -1,0 +1,26 @@
+# To be used when spark master + worker have their own pods in a cluster
+# In this case, this simply serves as the image for the driver
+FROM bitnami/spark:latest
+
+WORKDIR /app
+
+# Copy the source code into the container.
+COPY processor/__init__.py .
+COPY processor/processor.py .
+COPY db ./db
+COPY requirements.txt .
+COPY processor/dependencies/jars ./jars
+
+# Download dependencies as a separate step to take advantage of Docker's caching.
+# 1. Leverage a cache mount to /root/.cache/pip to speed up subsequent builds (pip install doesn't need to be re-run each time
+# since packages are cached).
+# 2. install packages
+RUN --mount=type=cache,target=/root/.cache/pip \
+python -m pip install -r requirements.txt
+
+
+# Run the application.
+# modify the spark master service url depending on your setup
+# the master url can be found by running `kubectl get svc -A`  on your cluster
+# note: $(echo /app/jars/*.jar | tr ' ' ',') lists all the jars in the folder and replaces " " by ","
+CMD ["sh","-c","spark-submit --master spark://spark-master-svc:7077 --deploy-mode client --driver-memory 2g --executor-memory 2g --num-executors 2 --executor-cores 2 --jars $(echo /app/jars/*.jar | tr ' ' ',') /app/processor.py"]

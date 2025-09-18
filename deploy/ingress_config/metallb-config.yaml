@@ -1,0 +1,19 @@
+# specifies which ip addresses in your local network can be assigned to services of type LoadBalancer
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: default-addresspool
+  namespace: metallb-system
+spec:
+  addresses:
+    - 192.168.5.240-192.168.5.250  # Use a range in your VM's subnet that is not already in use
+
+---
+# once the ip address has been assigned by metallb, it will advertise it on the local network 
+# (i.e., make the network beyond the cluster aware of the assigned IP address)
+# in this case we are using layer 2 advertisement (ARP/NDP). Refer https://metallb.io/concepts/
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: default
+  namespace: metallb-system

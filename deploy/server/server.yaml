@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grpc-server
+  labels:
+    app: grpc-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grpc-server
+  template:
+    metadata:
+      labels:
+        app: grpc-server
+    spec:
+      containers:
+        - name: grpc-server
+          image: localhost/grpc-server:latest   
+          env:
+            - name: REDIS_HOST
+              value: "redis"
+            - name: REDIS_PORT
+              value: "6379"
+          ports:
+            - containerPort: 50051 
+          imagePullPolicy: IfNotPresent
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grpc-server-service
+  labels:
+    app: grpc-server-service
+spec:
+  type: ClusterIP
+  selector:
+    app: grpc-server
+  ports:
+    - name: grpc
+      port: 50051
+      targetPort: 50051

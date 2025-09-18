@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package metrics;
+
+// Service definition
+service MetricsService {
+  // Fetch recent raw records from Redis
+  rpc GetRawData (RawDataRequest) returns (RawDataResponse);
+
+  // Fetch aggregate metrics/statistics
+  rpc GetMetrics (MetricsRequest) returns (MetricsResponse);
+}
+
+// Request to get raw records
+message RawDataRequest {
+  int32 limit = 1; // how many recent entries to fetch (e.g., 10)
+}
+
+// Response with raw records
+message RawDataResponse {
+  repeated string records = 1; // list of JSON strings from Redis
+}
+
+// Request for metrics (currently empty, can expand later)
+message MetricsRequest {}
+
+message Metric {
+  string action = 1; //specific action (login, click etc.)
+  int64 count = 2; // total number of records in Redis for a given action 
+}
+
+// Response with metrics
+message MetricsResponse {
+  repeated Metric metrics = 1;
+}

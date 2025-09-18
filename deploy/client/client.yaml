@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grpc-client
+  labels:
+    app: grpc-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grpc-client
+  template:
+    metadata:
+      labels:
+        app: grpc-client
+    spec:
+      containers:
+        - name: grpc-client
+          image: localhost/grpc-client:latest  # replace with your built image
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5001
+          env:
+            - name: GRPC_SERVER
+              value: "grpc-server-service:50051"
+
+---
+# internal service to target the producer
+apiVersion: v1
+kind: Service
+metadata:
+  name: grpc-client-service
+  labels:
+    app: grpc-client-service
+spec:
+  selector:
+    app: grpc-client
+  ports:
+    - protocol: TCP
+      port: 5001         # Port exposed by the service
+      targetPort: 5001   # Port on which the producer is listening
+  type: ClusterIP
+---
+
+# ingress to expose the producer service
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grpc-client-ingress
+spec:
+  # this tells kubernetes
+  # which ingress controller to use for this ingress resource
+  # (useful in particular if you have multiple ingress controllers and need to
+  # associate a specific ingress resource with a specific ingress controller)
+  ingressClassName: nginx
+  rules:
+    - host: grpc-client.local
+      http:
+        paths:
+          - path: /raw-data
+            pathType: Prefix
+            backend:
+              service:
+                name: grpc-client-service
+                port:
+                  number: 5001  # Change to your service's target port
+          - path: /metrics
+            pathType: Prefix
+            backend:
+              service:
+                name: grpc-client-service
+                port:
+                  number: 5001  # Change to your service's target port
