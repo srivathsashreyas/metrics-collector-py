@@ -1,0 +1,63 @@
+# update version for each build in this file
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+
+  # each job:
+  # 1. logs in to dockerhub (secrets are configured in github)
+  # 2. builds the docker image with the tag <registry>/<username>/image:version
+  # 3. pushes the image with the given tag to dockerhub
+  build-and-push-producer:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Login to dockerhub
+      run: docker login docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Build the producer image      
+      run: docker build -f deploy/producer/Dockerfile -t docker.io/${{ secrets.DOCKERHUB_USERNAME }}/producer:1.0.0 .
+    - name: Push the producer image
+      run: docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/producer:1.0.0
+   
+  build-and-push-processor: 
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Login to dockerhub
+      run: docker login docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Build the processor image      
+      run: docker build -f deploy/processor/Dockerfile -t docker.io/${{ secrets.DOCKERHUB_USERNAME }}/processor:1.0.0 .
+    - name: Push the processor image
+      run: docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/processor:1.0.0
+  
+  build-and-push-grpc-server: 
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Login to dockerhub
+      run: docker login docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Build the server image      
+      run: docker build -f deploy/server/Dockerfile -t docker.io/${{ secrets.DOCKERHUB_USERNAME }}/grpc-server:1.0.0 .
+    - name: Push the server image
+      run: docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/grpc-server:1.0.0
+
+  build-and-push-grpc-client: 
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Login to dockerhub
+      run: docker login docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Build the client image      
+      run: docker build -f deploy/client/Dockerfile -t docker.io/${{ secrets.DOCKERHUB_USERNAME }}/grpc-client:1.0.0 .
+    - name: Push the client image
+      run: docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/grpc-client:1.0.0
