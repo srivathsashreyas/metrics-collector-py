@@ -13,6 +13,10 @@ jobs:
   # 1. logs in to dockerhub (secrets are configured in github)
   # 2. builds the docker image with the tag <registry>/<username>/image:version
   # 3. pushes the image with the given tag to dockerhub
+  # note: avoid using the -p flag when performing docker login since
+  # this docker login with the -p flag requires an interactive terminal
+  # since github action servers do not provide an interactive terminal,
+  # use --password-stdin instead
   build-and-push-producer:
 
     runs-on: ubuntu-latest
@@ -20,7 +24,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Login to dockerhub
-      run: docker login docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+      run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
     - name: Build the producer image      
       run: docker build -f deploy/producer/Dockerfile -t docker.io/${{ secrets.DOCKERHUB_USERNAME }}/producer:1.0.0 .
     - name: Push the producer image
@@ -32,7 +36,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Login to dockerhub
-      run: docker login docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+      run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
     - name: Build the processor image      
       run: docker build -f deploy/processor/Dockerfile -t docker.io/${{ secrets.DOCKERHUB_USERNAME }}/processor:1.0.0 .
     - name: Push the processor image
@@ -44,7 +48,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Login to dockerhub
-      run: docker login docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+      run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
     - name: Build the server image      
       run: docker build -f deploy/server/Dockerfile -t docker.io/${{ secrets.DOCKERHUB_USERNAME }}/grpc-server:1.0.0 .
     - name: Push the server image
@@ -56,7 +60,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Login to dockerhub
-      run: docker login docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+      run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
     - name: Build the client image      
       run: docker build -f deploy/client/Dockerfile -t docker.io/${{ secrets.DOCKERHUB_USERNAME }}/grpc-client:1.0.0 .
     - name: Push the client image
