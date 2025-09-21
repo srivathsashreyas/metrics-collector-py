@@ -9,10 +9,11 @@ on:
 
 # update image tags based on update to each component here
 env:
-  PRODUCER_IMAGE: producer:1.0.0
-  PROCESSOR_IMAGE: processor:1.0.0
-  GRPC_SERVER_IMAGE: grpc-server:1.0.0
-  GRPC_CLIENT_IMAGE: grpc-client:1.0.0
+  PRODUCER_IMAGE: producer:2.0.0
+  PROCESSOR_IMAGE: processor:2.0.0
+  GRPC_SERVER_IMAGE: grpc-server:2.0.0
+  GRPC_CLIENT_IMAGE: grpc-client:2.0.0
+  GITOPS_REPO: srivathsashreyas/metrics-collector-py-gitops
 
 jobs:
 
@@ -72,3 +73,26 @@ jobs:
       run: docker build -f deploy/client/Dockerfile -t docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{env.GRPC_CLIENT_IMAGE}} .
     - name: Push the client image
       run: docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{env.GRPC_CLIENT_IMAGE}}
+  
+  update-image-tags-in-gitops-repo:
+    needs: [build-and-push-producer, build-and-push-processor, build-and-push-grpc-server, build-and-push-grpc-client]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout gitops repo
+      uses: actions/checkout@v4
+      with: 
+        repository: ${{ env.GITOPS_REPO }}
+        token: ${{ secrets.REPO_PAT }}
+    - name: Update image tags in values.yaml based on env specification
+      run: |
+        sed -i -r 's/grpc-client:(.)+/grpc-client:${{env.GRPC_CLIENT_IMAGE}}/g' values.yaml
+        sed -i -r 's/grpc-server:(.)+/grpc-server:${{env.GRPC_SERVER_IMAGE}}/g' values.yaml
+        sed -i -r 's/processor:(.)+/processor:${{env.PROCESSOR_IMAGE}}/g' values.yaml
+        sed -i -r 's/producer:(.)+/producer:${{env.PRODUCER_IMAGE}}/g' values.yaml
+    - name: Commit and push changes
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add values.yaml
+        git commit -m "Update image tags in values.yaml"
+        git push

@@ -39,7 +39,7 @@ The project is structured as follows:
 ## Deployment Steps (Local with Colima)
 
 1. Ensure you've built all relevant images. For example to build the producer image, run
-`podman build -f deploy/producer/Dockerfile -t producer .`. Ensure that the tags match those specified in the corresponding k8s manifest files
+`podman build -f deploy/producer/Dockerfile -t producer .`. Ensure that the tags match those specified in the corresponding k8s manifest files. Note: You may need to modify the JAVA_HOME path in the processor Dockerfile based on your system architecture (arm64 for apple silicon, amd64 for intel/amd)
 2. Save the images as a tar file. For example, to save the producer image, run
 `podman save -o producer.tar producer:latest`
 3. Start Colima with Kubernetes enabled (skip this step if you already have k3s running on your system) -> `colima start --kubernetes --runtime containerd --cpu 4 --memory 4`
