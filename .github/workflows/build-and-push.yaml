@@ -7,6 +7,13 @@ on:
   pull_request:
     branches: [ "master" ]
 
+# update image tags based on update to each component here
+env:
+  PRODUCER_IMAGE: producer:1.0.0
+  PROCESSOR_IMAGE: processor:1.0.0
+  GRPC_SERVER_IMAGE: grpc-server:1.0.0
+  GRPC_CLIENT_IMAGE: grpc-client:1.0.0
+
 jobs:
 
   # each job:
@@ -26,9 +33,9 @@ jobs:
     - name: Login to dockerhub
       run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
     - name: Build the producer image      
-      run: docker build -f deploy/producer/Dockerfile -t docker.io/${{ secrets.DOCKERHUB_USERNAME }}/producer:1.0.0 .
+      run: docker build -f deploy/producer/Dockerfile -t docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{env.PRODUCER_IMAGE}} .
     - name: Push the producer image
-      run: docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/producer:1.0.0
+      run: docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{env.PRODUCER_IMAGE}}
    
   build-and-push-processor: 
     runs-on: ubuntu-latest
@@ -38,9 +45,9 @@ jobs:
     - name: Login to dockerhub
       run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
     - name: Build the processor image      
-      run: docker build -f deploy/processor/Dockerfile -t docker.io/${{ secrets.DOCKERHUB_USERNAME }}/processor:1.0.0 .
+      run: docker build -f deploy/processor/Dockerfile -t docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{env.PROCESSOR_IMAGE}} .
     - name: Push the processor image
-      run: docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/processor:1.0.0
+      run: docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{env.PROCESSOR_IMAGE}}
   
   build-and-push-grpc-server: 
     runs-on: ubuntu-latest
@@ -50,9 +57,9 @@ jobs:
     - name: Login to dockerhub
       run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
     - name: Build the server image      
-      run: docker build -f deploy/server/Dockerfile -t docker.io/${{ secrets.DOCKERHUB_USERNAME }}/grpc-server:1.0.0 .
+      run: docker build -f deploy/server/Dockerfile -t docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{env.GRPC_SERVER_IMAGE}} .
     - name: Push the server image
-      run: docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/grpc-server:1.0.0
+      run: docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{env.GRPC_SERVER_IMAGE}}
 
   build-and-push-grpc-client: 
     runs-on: ubuntu-latest
@@ -62,6 +69,6 @@ jobs:
     - name: Login to dockerhub
       run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login docker.io -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
     - name: Build the client image      
-      run: docker build -f deploy/client/Dockerfile -t docker.io/${{ secrets.DOCKERHUB_USERNAME }}/grpc-client:1.0.0 .
+      run: docker build -f deploy/client/Dockerfile -t docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{env.GRPC_CLIENT_IMAGE}} .
     - name: Push the client image
-      run: docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/grpc-client:1.0.0
+      run: docker push docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{env.GRPC_CLIENT_IMAGE}}

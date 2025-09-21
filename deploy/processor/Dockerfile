@@ -12,7 +12,10 @@ ENV PYTHONUNBUFFERED=1
 
 # install java and set java home (required for spark)
 RUN apt-get update && apt-get install -y openjdk-21-jre-headless && apt-get clean
-ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-arm64
+# use arm64 if building the image on a mac with apple silicon
+#ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-arm64
+# for intel/amd use the following line instead
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 ENV PATH="$JAVA_HOME/bin:$PATH"
 
 WORKDIR /app
