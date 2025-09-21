@@ -85,10 +85,10 @@ jobs:
         token: ${{ secrets.REPO_PAT }}
     - name: Update image tags in values.yaml based on env specification
       run: |
-        sed -i -r 's/grpc-client:(.)+/grpc-client:${{env.GRPC_CLIENT_IMAGE}}/g' values.yaml
-        sed -i -r 's/grpc-server:(.)+/grpc-server:${{env.GRPC_SERVER_IMAGE}}/g' values.yaml
-        sed -i -r 's/processor:(.)+/processor:${{env.PROCESSOR_IMAGE}}/g' values.yaml
-        sed -i -r 's/producer:(.)+/producer:${{env.PRODUCER_IMAGE}}/g' values.yaml
+        sed -i -r 's/grpc-client:(.)+/${{env.GRPC_CLIENT_IMAGE}}/g' values.yaml
+        sed -i -r 's/grpc-server:(.)+/${{env.GRPC_SERVER_IMAGE}}/g' values.yaml
+        sed -i -r 's/processor:(.)+/${{env.PROCESSOR_IMAGE}}/g' values.yaml
+        sed -i -r 's/producer:(.)+/${{env.PRODUCER_IMAGE}}/g' values.yaml
     - name: Commit and push changes
       run: |
         git config user.name "github-actions[bot]"
