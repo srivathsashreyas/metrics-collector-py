@@ -9,10 +9,10 @@ on:
 
 # update image tags based on update to each component here
 env:
-  PRODUCER_IMAGE: producer:3.0.0
-  PROCESSOR_IMAGE: processor:3.0.0
-  GRPC_SERVER_IMAGE: grpc-server:3.0.0
-  GRPC_CLIENT_IMAGE: grpc-client:3.0.0
+  PRODUCER_IMAGE: producer:3.1.0
+  PROCESSOR_IMAGE: processor:3.1.0
+  GRPC_SERVER_IMAGE: grpc-server:3.1.0
+  GRPC_CLIENT_IMAGE: grpc-client:3.1.0
   GITOPS_REPO: srivathsashreyas/metrics-collector-py-gitops
 
 jobs:
