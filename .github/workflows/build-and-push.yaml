@@ -9,15 +9,15 @@ on:
 
 # update image tags based on update to each component here
 env:
-  PRODUCER_IMAGE: producer:3.1.0
-  PROCESSOR_IMAGE: processor:3.1.0
-  GRPC_SERVER_IMAGE: grpc-server:3.1.0
-  GRPC_CLIENT_IMAGE: grpc-client:3.1.0
+  PRODUCER_IMAGE: producer:4.1.0
+  PROCESSOR_IMAGE: processor:4.1.0
+  GRPC_SERVER_IMAGE: grpc-server:4.1.0
+  GRPC_CLIENT_IMAGE: grpc-client:4.1.0
   GITOPS_REPO: srivathsashreyas/metrics-collector-py-gitops
 
 jobs:
 
-  # each job:
+  # each job (except the last):
   # 1. logs in to dockerhub (secrets are configured in github)
   # 2. builds the docker image with the tag <registry>/<username>/image:version
   # 3. pushes the image with the given tag to dockerhub
@@ -25,6 +25,12 @@ jobs:
   # this docker login with the -p flag requires an interactive terminal
   # since github action servers do not provide an interactive terminal,
   # use --password-stdin instead
+  
+  # the last job:
+  # 1. Checks out the gitops repo
+  # 2. updates the image tags in values.yaml based on the env specification above
+  # 3. commits and pushes the changes to the gitops repo (following which ArgoCD will pull the 
+  # changes and deploy the new images to the cluster)
   build-and-push-producer:
 
     runs-on: ubuntu-latest

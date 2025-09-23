@@ -36,7 +36,7 @@ The project is structured as follows:
 6. Maven (to retrieve the spark-sql-kafka jar and its dependencies, tested with v3.9.11)
 7. Java (to run maven commands, tested with openjdk v17.0.16)
 
-## Deployment Steps (Local with Colima)
+## Manual Deployment Steps (Local with Colima)
 
 1. Ensure you've built all relevant images. For example to build the producer image, run
 `podman build -f deploy/producer/Dockerfile -t producer .`. Ensure that the tags match those specified in the corresponding k8s manifest files. Note: You may need to modify the JAVA_HOME path in the processor Dockerfile based on your system architecture (arm64 for apple silicon, amd64 for intel/amd)
@@ -54,6 +54,10 @@ Adjust the cpu and memory based on your system resources (though this could affe
 11. To test, ssh into the colima vm and run the following 
    - `curl -H "Host: producer.local" http://<INGRESS_IP>/login`. This will generate a login message and pass it on to the other components as stated in the overview section
    -  `curl -H "Host: grpc-client.local" http://<INGRESS_IP>/metrics` to retrieve the count of logins or `curl -H "Host: grpc-client.local" http://<INGRESS_IP>/raw-data` to retrieve the last 10 raw login messages
+
+## Automated Deployment Steps
+1. Ensure you have setup a microshift or k3s cluster (note both configurations have been verified only on macos)
+2. Refer the gitops repo README (https://github.com/srivathsashreyas/metrics-collector-py-gitops) for steps to install ArgoCD
 
 ## Useful Commands (Reference)
 
